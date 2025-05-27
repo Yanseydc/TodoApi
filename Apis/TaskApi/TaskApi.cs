@@ -1,9 +1,9 @@
-using System.ComponentModel.DataAnnotations;
-using Microsoft.EntityFrameworkCore;
+using ErrorOr;
 using TodoApi.Apis.Constants;
 using TodoApi.Apis.Endpoints;
-using TodoApi.Data;
-using TodoApi.Models;
+using TodoApi.Apis.TaskApi.Mappers;
+using TodoApi.Apis.TaskApi.Models;
+using TodoApi.Services.Task;
 
 namespace TodoApi.Apis.TaskApi;
 
@@ -36,53 +36,45 @@ public class TaskApi : IEndpoint
     }
 
     internal static async Task<IResult> GetTasks(
-        AppDbContext db,
+        ITaskService taskService,
         CancellationToken cancellationToken = default
     )
     {
-        return Results.Ok(await db.Tasks.ToListAsync(cancellationToken: cancellationToken));
+        return await taskService.GetTasks(cancellationToken)
+            .Match(Results.Ok,Results.BadRequest);
+
     }
 
     internal static async Task<IResult> GetTask(
-        AppDbContext db,
         Guid id,
+        ITaskService taskService,
         CancellationToken cancellationToken = default
     )
     {
-        var task = await db.Tasks.FindAsync([id, cancellationToken], cancellationToken: cancellationToken);
-        return task is null ? Results.NotFound() : Results.Ok(task);
+        return await taskService.GetTaskById(id, cancellationToken)
+            .Match(Results.Ok, Results.BadRequest);
     }
 
     internal static async Task<IResult> CreateTask(
-        AppDbContext db,
         TaskItemRequest task,
+        ITaskService taskService,
         CancellationToken cancellationToken = default
         )
     {
-        var context = new ValidationContext(task, null, null);
-        var results = new List<ValidationResult>();
-        if (!Validator.TryValidateObject(task, context, results, true))
-        {
-            return Results.ValidationProblem(results.ToDictionary(
-                e => e.MemberNames.First(),
-                e => new[] { e.ErrorMessage ?? "" }));
-        }
-
-        db.Tasks.Add(task);
-        await db.SaveChangesAsync(cancellationToken);
-        return Results.Created($"/{task.Id}", task);
+        return await taskService.CreateTask(task.MapToDto(), cancellationToken)
+            .Match(
+                response => Results.Created($"/{response.Id}", response),
+                Results.BadRequest
+                );
     }
 
     internal static async Task<IResult> DeleteTask(
-        AppDbContext db,
         Guid id,
+        ITaskService taskService,
         CancellationToken cancellationToken = default
     )
     {
-        var task = await db.Tasks.FindAsync([id, cancellationToken], cancellationToken: cancellationToken);
-        if (task is null) return Results.NotFound();
-        db.Tasks.Remove(task);
-        await db.SaveChangesAsync(cancellationToken);
-        return Results.NoContent();
+        return await taskService.DeleteTask(id, cancellationToken)
+            .Match(Results.Ok, Results.BadRequest);
     }
 }

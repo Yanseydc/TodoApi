@@ -1,14 +1,10 @@
 using Microsoft.EntityFrameworkCore;
-using TodoApi.Models;
+using TodoApi.Data.Entities;
 
 namespace TodoApi.Data;
 
-public class AppDbContext : DbContext
+public class AppDbContext(DbContextOptions<AppDbContext> options) : DbContext(options)
 {
-    public AppDbContext(DbContextOptions<AppDbContext> options) : base(options)
-    {
-    } 
-    
-    public DbSet<TaskItemRequest> Tasks => Set<TaskItemRequest>();
+    public DbSet<TaskItem> Tasks => Set<TaskItem>();
 
 }

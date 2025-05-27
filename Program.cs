@@ -19,6 +19,8 @@ builder.Services.AddCors(options =>
             .AllowAnyHeader()
         );
 });
+
+builder.Services.AddServices();
 builder.Services.AddApis();
 
 var app = builder.Build();
