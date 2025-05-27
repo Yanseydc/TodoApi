@@ -7,10 +7,6 @@ public static class TaskApiMappers
 {
     public static TaskDto MapToDto(this TaskItemRequest task)
     {
-        return new TaskDto
-        {
-            Title = task.Title
-        };
+        return new TaskDto { Title = task.Title };
     }
-    
 }

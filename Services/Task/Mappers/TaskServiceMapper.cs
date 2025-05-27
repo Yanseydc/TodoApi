@@ -7,10 +7,6 @@ public static class TaskServiceMapper
 {
     public static TaskItem MapToEntity(this TaskDto dto)
     {
-        return new TaskItem
-        {
-            Title = dto.Title
-        };
+        return new TaskItem { Title = dto.Title };
     }
-    
 }

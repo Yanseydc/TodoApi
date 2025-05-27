@@ -10,7 +10,9 @@ namespace TodoApi.Services.Task;
 
 public class TaskService(AppDbContext dbContext) : ITaskService
 {
-    public async Task<ErrorOr<List<TaskItem>>> GetTasks(CancellationToken cancellationToken = default)
+    public async Task<ErrorOr<List<TaskItem>>> GetTasks(
+        CancellationToken cancellationToken = default
+    )
     {
         try
         {
@@ -23,11 +25,17 @@ public class TaskService(AppDbContext dbContext) : ITaskService
         }
     }
 
-    public async Task<ErrorOr<TaskItem>> GetTaskById(Guid id, CancellationToken cancellationToken = default)
+    public async Task<ErrorOr<TaskItem>> GetTaskById(
+        Guid id,
+        CancellationToken cancellationToken = default
+    )
     {
         try
         {
-            var task = await dbContext.Tasks.FindAsync([id, cancellationToken], cancellationToken: cancellationToken);
+            var task = await dbContext.Tasks.FindAsync(
+                [id, cancellationToken],
+                cancellationToken: cancellationToken
+            );
             return task is null ? Error.Failure(description: "Task not found") : task;
         }
         catch (Exception e)
@@ -36,7 +44,10 @@ public class TaskService(AppDbContext dbContext) : ITaskService
         }
     }
 
-    public async Task<ErrorOr<TaskItem>> CreateTask(TaskDto task, CancellationToken cancellationToken = default)
+    public async Task<ErrorOr<TaskItem>> CreateTask(
+        TaskDto task,
+        CancellationToken cancellationToken = default
+    )
     {
         try
         {
@@ -58,15 +69,24 @@ public class TaskService(AppDbContext dbContext) : ITaskService
         }
     }
 
-    public async Task<ErrorOr<Success>> DeleteTask(Guid id, CancellationToken cancellationToken = default)
+    public async Task<ErrorOr<Success>> DeleteTask(
+        Guid id,
+        CancellationToken cancellationToken = default
+    )
     {
         try
         {
-            var task = await dbContext.Tasks.FindAsync([id, cancellationToken], cancellationToken: cancellationToken);
+            var task = await dbContext.Tasks.FindAsync(
+                [id, cancellationToken],
+                cancellationToken: cancellationToken
+            );
             if (task is null)
             {
                 return Error.Failure(description: "Task not found");
             }
+
+            var context = new ValidationContext(task, null, null);
+            context.MemberName = "Id";
 
             dbContext.Tasks.Remove(task);
             await dbContext.SaveChangesAsync(cancellationToken);

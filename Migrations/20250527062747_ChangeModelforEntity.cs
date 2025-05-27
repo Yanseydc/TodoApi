@@ -17,7 +17,8 @@ namespace TodoApi.Migrations
                 nullable: true,
                 oldClrType: typeof(string),
                 oldType: "TEXT",
-                oldMaxLength: 100);
+                oldMaxLength: 100
+            );
         }
 
         /// <inheritdoc />
@@ -32,7 +33,8 @@ namespace TodoApi.Migrations
                 defaultValue: "",
                 oldClrType: typeof(string),
                 oldType: "TEXT",
-                oldNullable: true);
+                oldNullable: true
+            );
         }
     }
 }

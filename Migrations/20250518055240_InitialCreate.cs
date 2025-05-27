@@ -16,19 +16,19 @@ namespace TodoApi.Migrations
                 columns: table => new
                 {
                     Id = table.Column<Guid>(type: "TEXT", nullable: false),
-                    Title = table.Column<string>(type: "TEXT", maxLength: 100, nullable: false)
+                    Title = table.Column<string>(type: "TEXT", maxLength: 100, nullable: false),
                 },
                 constraints: table =>
                 {
                     table.PrimaryKey("PK_Tasks", x => x.Id);
-                });
+                }
+            );
         }
 
         /// <inheritdoc />
         protected override void Down(MigrationBuilder migrationBuilder)
         {
-            migrationBuilder.DropTable(
-                name: "Tasks");
+            migrationBuilder.DropTable(name: "Tasks");
         }
     }
 }

@@ -13,26 +13,13 @@ public class TaskApi : IEndpoint
     {
         var apiGroup = app.MapGroup(Routes.TasksRoute);
 
-        apiGroup
-            .MapGet("/", GetTasks)
-            .WithName("GetTasks")
-            .WithTags("Tasks");
-        
-        apiGroup
-            .MapGet("/{id:guid}", GetTask)
-            .WithName("GetTask")
-            .WithTags("Tasks");
-        
-        apiGroup
-            .MapPost("/", CreateTask)
-            .WithName("CreateTask")
-            .WithTags("Tasks");
+        apiGroup.MapGet("/", GetTasks).WithName("GetTasks").WithTags("Tasks");
 
-        apiGroup
-            .MapDelete("/{id:guid}", DeleteTask)
-            .WithName("DeleteTask")
-            .WithTags("Tasks");
+        apiGroup.MapGet("/{id:guid}", GetTask).WithName("GetTask").WithTags("Tasks");
 
+        apiGroup.MapPost("/", CreateTask).WithName("CreateTask").WithTags("Tasks");
+
+        apiGroup.MapDelete("/{id:guid}", DeleteTask).WithName("DeleteTask").WithTags("Tasks");
     }
 
     internal static async Task<IResult> GetTasks(
@@ -40,9 +27,7 @@ public class TaskApi : IEndpoint
         CancellationToken cancellationToken = default
     )
     {
-        return await taskService.GetTasks(cancellationToken)
-            .Match(Results.Ok,Results.BadRequest);
-
+        return await taskService.GetTasks(cancellationToken).Match(Results.Ok, Results.BadRequest);
     }
 
     internal static async Task<IResult> GetTask(
@@ -51,7 +36,8 @@ public class TaskApi : IEndpoint
         CancellationToken cancellationToken = default
     )
     {
-        return await taskService.GetTaskById(id, cancellationToken)
+        return await taskService
+            .GetTaskById(id, cancellationToken)
             .Match(Results.Ok, Results.BadRequest);
     }
 
@@ -59,13 +45,11 @@ public class TaskApi : IEndpoint
         TaskItemRequest task,
         ITaskService taskService,
         CancellationToken cancellationToken = default
-        )
+    )
     {
-        return await taskService.CreateTask(task.MapToDto(), cancellationToken)
-            .Match(
-                response => Results.Created($"/{response.Id}", response),
-                Results.BadRequest
-                );
+        return await taskService
+            .CreateTask(task.MapToDto(), cancellationToken)
+            .Match(response => Results.Created($"/{response.Id}", response), Results.BadRequest);
     }
 
     internal static async Task<IResult> DeleteTask(
@@ -74,7 +58,8 @@ public class TaskApi : IEndpoint
         CancellationToken cancellationToken = default
     )
     {
-        return await taskService.DeleteTask(id, cancellationToken)
+        return await taskService
+            .DeleteTask(id, cancellationToken)
             .Match(Results.Ok, Results.BadRequest);
     }
 }
