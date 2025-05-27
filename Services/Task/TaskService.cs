@@ -16,8 +16,7 @@ public class TaskService(AppDbContext dbContext) : ITaskService
     {
         try
         {
-            var tasks = await dbContext
-                .Tasks.ToListAsync(cancellationToken: cancellationToken);
+            var tasks = await dbContext.Tasks.ToListAsync(cancellationToken: cancellationToken);
             return tasks;
         }
         catch (Exception e)
