@@ -10,14 +10,13 @@ namespace TodoApi.Services.Task;
 
 public class TaskService(AppDbContext dbContext) : ITaskService
 {
-    public async Task<ErrorOr<List<TaskItem>>> GetTasks(
+    public async Task<ErrorOr<List<TaskEntity>>> GetTasks(
         CancellationToken cancellationToken = default
     )
     {
         try
         {
-            var tasks = await dbContext
-                .Tasks.ToListAsync(cancellationToken: cancellationToken);
+            var tasks = await dbContext.Tasks.ToListAsync(cancellationToken: cancellationToken);
             return tasks;
         }
         catch (Exception e)
@@ -26,7 +25,7 @@ public class TaskService(AppDbContext dbContext) : ITaskService
         }
     }
 
-    public async Task<ErrorOr<TaskItem>> GetTaskById(
+    public async Task<ErrorOr<TaskEntity>> GetTaskById(
         Guid id,
         CancellationToken cancellationToken = default
     )
@@ -45,7 +44,7 @@ public class TaskService(AppDbContext dbContext) : ITaskService
         }
     }
 
-    public async Task<ErrorOr<TaskItem>> CreateTask(
+    public async Task<ErrorOr<TaskEntity>> CreateTask(
         TaskDto task,
         CancellationToken cancellationToken = default
     )

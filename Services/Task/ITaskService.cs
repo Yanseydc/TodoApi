@@ -6,8 +6,11 @@ namespace TodoApi.Services.Task;
 
 public interface ITaskService
 {
-    Task<ErrorOr<List<TaskItem>>> GetTasks(CancellationToken cancellationToken = default);
-    Task<ErrorOr<TaskItem>> GetTaskById(Guid id, CancellationToken cancellationToken = default);
-    Task<ErrorOr<TaskItem>> CreateTask(TaskDto task, CancellationToken cancellationToken = default);
+    Task<ErrorOr<List<TaskEntity>>> GetTasks(CancellationToken cancellationToken = default);
+    Task<ErrorOr<TaskEntity>> GetTaskById(Guid id, CancellationToken cancellationToken = default);
+    Task<ErrorOr<TaskEntity>> CreateTask(
+        TaskDto task,
+        CancellationToken cancellationToken = default
+    );
     Task<ErrorOr<Success>> DeleteTask(Guid id, CancellationToken cancellationToken = default);
 }

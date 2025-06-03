@@ -8,8 +8,8 @@ var builder = WebApplication.CreateBuilder(args);
 // Add services to the container.
 // Learn more about configuring OpenAPI at https://aka.ms/aspnet/openapi
 // DB config
-builder.Services.AddDbContext<AppDbContext>(options => options.UseSqlite("Data Source=tasks.db"));
-builder.Services.AddOpenApi();
+builder.Services.AddDbContextExtension();
+builder.Services.AddEndpointsApiExplorer();
 builder.Services.AddCors(options =>
 {
     options.AddPolicy(
@@ -18,21 +18,24 @@ builder.Services.AddCors(options =>
     );
 });
 
+builder.Services.AddJwtConfiguration(builder.Configuration);
 builder.Services.AddServices();
 builder.Services.AddApis();
+builder.Services.AddSwagger();
 
 var app = builder.Build();
 
 // Configure the HTTP request pipeline.
 if (app.Environment.IsDevelopment())
 {
-    app.MapOpenApi();
+    app.UseSwagger();
+    app.UseSwaggerUI();
 }
 
 app.UseCors("AllowReact");
 app.UseHttpsRedirection();
+app.UseAuthentication();
 
-// app.UseAuthorization();
 using (var scope = app.Services.CreateScope())
 {
     var db = scope.ServiceProvider.GetRequiredService<AppDbContext>();
