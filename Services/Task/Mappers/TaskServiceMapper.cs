@@ -5,8 +5,8 @@ namespace TodoApi.Services.Task.Mappers;
 
 public static class TaskServiceMapper
 {
-    public static TaskItem MapToEntity(this TaskDto dto)
+    public static TaskEntity MapToEntity(this TaskDto dto)
     {
-        return new TaskItem { Title = dto.Title };
+        return new TaskEntity { Title = dto.Title };
     }
 }

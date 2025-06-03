@@ -2,6 +2,7 @@
 using System;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
+using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 using TodoApi.Data;
 
@@ -10,14 +11,16 @@ using TodoApi.Data;
 namespace TodoApi.Migrations
 {
     [DbContext(typeof(AppDbContext))]
-    partial class AppDbContextModelSnapshot : ModelSnapshot
+    [Migration("20250603073156_AddUsersTable")]
+    partial class AddUsersTable
     {
-        protected override void BuildModel(ModelBuilder modelBuilder)
+        /// <inheritdoc />
+        protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
 #pragma warning disable 612, 618
             modelBuilder.HasAnnotation("ProductVersion", "9.0.5");
 
-            modelBuilder.Entity("TodoApi.Data.Entities.TaskEntity", b =>
+            modelBuilder.Entity("TodoApi.Data.Entities.TaskItem", b =>
                 {
                     b.Property<Guid>("Id")
                         .ValueGeneratedOnAdd()
@@ -31,7 +34,7 @@ namespace TodoApi.Migrations
                     b.ToTable("Tasks");
                 });
 
-            modelBuilder.Entity("TodoApi.Data.Entities.UserEntity", b =>
+            modelBuilder.Entity("TodoApi.Data.Entities.User", b =>
                 {
                     b.Property<Guid>("Id")
                         .ValueGeneratedOnAdd()
@@ -40,8 +43,8 @@ namespace TodoApi.Migrations
                     b.Property<string>("HashedPassword")
                         .HasColumnType("TEXT");
 
-                    b.Property<int?>("Role")
-                        .HasColumnType("INTEGER");
+                    b.Property<string>("Role")
+                        .HasColumnType("TEXT");
 
                     b.Property<string>("Username")
                         .HasColumnType("TEXT");
