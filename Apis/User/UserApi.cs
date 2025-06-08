@@ -36,7 +36,7 @@ public class UserApi : IEndpoint
     )
     {
         return await userService
-            .GetUserAsync(id, cancellationToken)
+            .GetUserByIdAsync(id, cancellationToken)
             .Match(Results.Ok, Results.BadRequest);
     }
 

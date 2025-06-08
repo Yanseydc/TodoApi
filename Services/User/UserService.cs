@@ -1,7 +1,5 @@
-using System.ComponentModel.DataAnnotations;
 using ErrorOr;
-using Microsoft.EntityFrameworkCore;
-using TodoApi.Data;
+using TodoApi.Data.Dal.UserDal;
 using TodoApi.Data.Entities;
 using TodoApi.Services.User.Mappers;
 using TodoApi.Services.User.Models;
@@ -9,16 +7,19 @@ using TodoApi.Services.User.Utils;
 
 namespace TodoApi.Services.User;
 
-public class UserService(AppDbContext dbContext) : IUserService
+public class UserService(IUserDal userDal) : IUserService
 {
-    public async Task<ErrorOr<IEnumerable<UserDto>>> GetUsersAsync(
+    public async Task<ErrorOr<List<UserDto>>> GetUsersAsync(
         CancellationToken cancellationToken = default
     )
     {
         try
         {
-            var result = await dbContext.Users.ToListAsync(cancellationToken);
-            return result.Select(user => user.MapToDto()).ToErrorOr();
+            var result = await userDal.GetAllUsers(cancellationToken);
+            return result.Match<ErrorOr<List<UserDto>>>(
+                userEntityList => userEntityList.Select(user => user.MapToDto()).ToList(),
+                errors => errors
+            );
         }
         catch (Exception e)
         {
@@ -26,23 +27,18 @@ public class UserService(AppDbContext dbContext) : IUserService
         }
     }
 
-    public async Task<ErrorOr<UserDto>> GetUserAsync(
+    public async Task<ErrorOr<UserDto>> GetUserByIdAsync(
         Guid userId,
         CancellationToken cancellationToken = default
     )
     {
         try
         {
-            var user = await dbContext.Users.FindAsync(
-                [userId, cancellationToken],
-                cancellationToken
+            var result = await userDal.GetUserById(userId, cancellationToken);
+            return result.Match<ErrorOr<UserDto>>(
+                userEntity => userEntity.MapToDto(),
+                errors => errors
             );
-            if (user is null)
-            {
-                return Error.Failure(description: "User not found");
-            }
-
-            return user.MapToDto();
         }
         catch (Exception e)
         {
@@ -63,16 +59,8 @@ public class UserService(AppDbContext dbContext) : IUserService
                 Role = 1,
                 HashedPassword = UseServiceUtils.HashPassword(userDto.Password),
             };
-            var context = new ValidationContext(userEntity, null, null);
-            var results = new List<ValidationResult>();
-            if (!Validator.TryValidateObject(userEntity, context, results, true))
-            {
-                return Error.Failure(description: "Validation failed");
-            }
-
-            dbContext.Users.Add(userEntity);
-            await dbContext.SaveChangesAsync(cancellationToken);
-            return userEntity.MapToDto();
+            var result = await userDal.CreateUser(userEntity, cancellationToken);
+            return result.Match<ErrorOr<UserDto>>(entity => entity.MapToDto(), errors => errors);
         }
         catch (Exception e)
         {

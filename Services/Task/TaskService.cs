@@ -1,23 +1,23 @@
-using System.ComponentModel.DataAnnotations;
 using ErrorOr;
-using Microsoft.EntityFrameworkCore;
-using TodoApi.Data;
-using TodoApi.Data.Entities;
+using TodoApi.Data.Dal.TaskDal;
 using TodoApi.Services.Task.Mappers;
 using TodoApi.Services.Task.Models;
 
 namespace TodoApi.Services.Task;
 
-public class TaskService(AppDbContext dbContext) : ITaskService
+public class TaskService(ITaskDal taskDal) : ITaskService
 {
-    public async Task<ErrorOr<List<TaskEntity>>> GetTasks(
+    public async Task<ErrorOr<List<TaskDto>>> GetTasksAsync(
         CancellationToken cancellationToken = default
     )
     {
         try
         {
-            var tasks = await dbContext.Tasks.ToListAsync(cancellationToken: cancellationToken);
-            return tasks;
+            var tasks = await taskDal.GetAllTasks(cancellationToken);
+            return tasks.Match<ErrorOr<List<TaskDto>>>(
+                taskEntities => taskEntities.Select(task => task.MapToDto()).ToList(),
+                errors => errors
+            );
         }
         catch (Exception e)
         {
@@ -25,18 +25,18 @@ public class TaskService(AppDbContext dbContext) : ITaskService
         }
     }
 
-    public async Task<ErrorOr<TaskEntity>> GetTaskById(
+    public async Task<ErrorOr<TaskDto>> GetTaskByIdAsync(
         Guid id,
         CancellationToken cancellationToken = default
     )
     {
         try
         {
-            var task = await dbContext.Tasks.FindAsync(
-                [id, cancellationToken],
-                cancellationToken: cancellationToken
+            var task = await taskDal.GetTaskById(id, cancellationToken);
+            return task.Match<ErrorOr<TaskDto>>(
+                taskEntity => taskEntity.MapToDto(),
+                errors => errors
             );
-            return task is null ? Error.Failure(description: "Task not found") : task;
         }
         catch (Exception e)
         {
@@ -44,24 +44,16 @@ public class TaskService(AppDbContext dbContext) : ITaskService
         }
     }
 
-    public async Task<ErrorOr<TaskEntity>> CreateTask(
-        TaskDto task,
+    public async Task<ErrorOr<TaskDto>> CreateTaskAsync(
+        TaskRequestDto request,
         CancellationToken cancellationToken = default
     )
     {
         try
         {
-            var taskEntity = task.MapToEntity();
-            var context = new ValidationContext(taskEntity, null, null);
-            var results = new List<ValidationResult>();
-            if (!Validator.TryValidateObject(taskEntity, context, results, true))
-            {
-                return Error.Failure(description: "Validation failed");
-            }
-
-            dbContext.Tasks.Add(taskEntity);
-            await dbContext.SaveChangesAsync(cancellationToken);
-            return taskEntity;
+            var taskEntity = request.MapToEntity();
+            var result = await taskDal.CreateTask(taskEntity, cancellationToken);
+            return result.Match<ErrorOr<TaskDto>>(entity => entity.MapToDto(), errors => errors);
         }
         catch (Exception e)
         {
@@ -69,28 +61,15 @@ public class TaskService(AppDbContext dbContext) : ITaskService
         }
     }
 
-    public async Task<ErrorOr<Success>> DeleteTask(
+    public async Task<ErrorOr<Success>> DeleteTaskAsync(
         Guid id,
         CancellationToken cancellationToken = default
     )
     {
         try
         {
-            var task = await dbContext.Tasks.FindAsync(
-                [id, cancellationToken],
-                cancellationToken: cancellationToken
-            );
-            if (task is null)
-            {
-                return Error.Failure(description: "Task not found");
-            }
-
-            var context = new ValidationContext(task, null, null);
-            context.MemberName = "Id";
-
-            dbContext.Tasks.Remove(task);
-            await dbContext.SaveChangesAsync(cancellationToken);
-            return Result.Success;
+            var result = await taskDal.DeleteTask(id, cancellationToken);
+            return result.Match<ErrorOr<Success>>(success => success, errors => errors);
         }
         catch (Exception e)
         {

@@ -5,8 +5,8 @@ namespace TodoApi.Apis.TaskApi.Mappers;
 
 public static class TaskApiMappers
 {
-    public static TaskDto MapToDto(this TaskItemRequest task)
+    public static TaskRequestDto MapToDto(this TaskItemRequest task)
     {
-        return new TaskDto { Title = task.Title };
+        return new TaskRequestDto { Title = task.Title };
     }
 }

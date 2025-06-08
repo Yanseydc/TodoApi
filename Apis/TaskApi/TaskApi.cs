@@ -27,7 +27,9 @@ public class TaskApi : IEndpoint
         CancellationToken cancellationToken = default
     )
     {
-        return await taskService.GetTasks(cancellationToken).Match(Results.Ok, Results.BadRequest);
+        return await taskService
+            .GetTasksAsync(cancellationToken)
+            .Match(Results.Ok, Results.BadRequest);
     }
 
     internal static async Task<IResult> GetTask(
@@ -37,7 +39,7 @@ public class TaskApi : IEndpoint
     )
     {
         return await taskService
-            .GetTaskById(id, cancellationToken)
+            .GetTaskByIdAsync(id, cancellationToken)
             .Match(Results.Ok, Results.BadRequest);
     }
 
@@ -48,7 +50,7 @@ public class TaskApi : IEndpoint
     )
     {
         return await taskService
-            .CreateTask(task.MapToDto(), cancellationToken)
+            .CreateTaskAsync(task.MapToDto(), cancellationToken)
             .Match(response => Results.Created($"/{response.Id}", response), Results.BadRequest);
     }
 
@@ -59,7 +61,7 @@ public class TaskApi : IEndpoint
     )
     {
         return await taskService
-            .DeleteTask(id, cancellationToken)
+            .DeleteTaskAsync(id, cancellationToken)
             .Match(Results.Ok, Results.BadRequest);
     }
 }

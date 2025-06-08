@@ -20,6 +20,7 @@ builder.Services.AddCors(options =>
 
 builder.Services.AddJwtConfiguration(builder.Configuration);
 builder.Services.AddServices();
+builder.Services.AddDals();
 builder.Services.AddApis();
 builder.Services.AddSwagger();
 
